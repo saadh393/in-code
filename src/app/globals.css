@@ -16,9 +16,10 @@
     left: 0;
     top: 0%;
     width: 2px;
-    height: 4px;
+    height: 35px;
     background-color: hotpink;
-    animation: caretBlink 0.3s ease;
+    animation: caretBlink 0.1s ease;
+    transition: all 0.1s ease;
   }
 
   @frame caretBlink {

@@ -1,29 +1,32 @@
-"use client"
+"use client";
 
+import { carretBackspace } from "@/components/utils/carretHandler";
+import carretNextLine from "@/components/utils/carretNextLine";
+import carretPreviousLine from "@/components/utils/carretPreviousLine";
+import getCarretLeft from "@/components/utils/getCarretLeft";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 export default function Editor() {
-  const sentence = `def inOrderPrint(node):
-    if node.left is not None:
-        inOrderPrint(node.left)
+  const sentence = `def
+if
+print
+do
+`;
 
-    print(node.data)
+  const ref = useRef();
+  const lastLine = useRef();
+  const carret = useRef();
+  const current = useRef(0);
+  const [typed, setTypes] = useState([]);
 
-    if node.right is not None:
-        inOrderPrint(node.right)
-`
-
-  const ref= useRef();
-  const current = useRef(0)
-  const [typed, setTypes] = useState([])
-
-  useEffect(()=> {
-    ref.current.focus()
+  useEffect(() => {
+    ref.current.focus();
+    lastLine.current = []
 
     document.addEventListener("click", () => {
-      ref.current.focus()
-    })
-  }, [])
+      ref.current.focus();
+    });
+  }, []);
 
   const wordSpanRefs = useMemo(
     () =>
@@ -33,10 +36,10 @@ export default function Editor() {
     [sentence]
   );
 
-  const handleKeyDown = (e)=>{
-    const { key, keyCode } = e
-    const currentIndex = current.current
-    
+  const handleKeyDown = (e) => {
+    const { key, keyCode } = e;
+    const currentIndex = current.current;
+
     // disable Caps Lock key
     if (keyCode === 20) {
       e.preventDefault();
@@ -49,60 +52,77 @@ export default function Editor() {
       return;
     }
 
-    if(key == "Backspace"){
-      if(currentIndex >= 0){
-        setTypes((prev) => prev.slice(0, -1))
-        current.current -= 1
-        wordSpanRefs[current.current].current.classList.remove("correct", "wrong")
+    if (key == "Backspace") {
+      if (currentIndex > 0) {
+        carretBackspace(carret.current, current.current, wordSpanRefs, lastLine.current)
+        setTypes((prev) => prev.slice(0, -1));
+        current.current -= 1;
+        wordSpanRefs[current.current].current.classList.remove("correct", "wrong");
+      }else{
+        carret.current.style.left = "0px"
+        carret.current.style.top = "0px"
       }
-    }else{
-      const isEnter = keyCode === 13 && sentence[currentIndex] === "\n"
+
+
+    } else {
+      const isEnter = keyCode === 13 && sentence[currentIndex] === "\n";
+      carret.current.style.left = getCarretLeft(carret, wordSpanRefs[current.current]);
+
       if (sentence[currentIndex] === key || isEnter) {
         wordSpanRefs[current.current].current.classList.add("correct");
       } else {
         wordSpanRefs[current.current].current.classList.add("wrong");
       }
 
-      setTypes((prev) => [...prev, key])
+      if (isEnter) {
+        // Storing End Position
+        lastLine.current.push(carret.current.style.left);
+        carret.current.style.top = carretNextLine(carret, wordSpanRefs[current.current], lastLine);
+        carret.current.style.left = "0px";
 
-      current.current += 1
+      }
+
+      setTypes((prev) => [...prev, key]);
+      current.current += 1;
     }
+  };
 
-    
-
-  }
-  
-  let charCounter = 0
+  let charCounter = 0;
 
   return (
     <div className="text-center text-white h-screen grid place-items-center">
-      <div className="text-3xl leading-8 text-[#797979] text-left">
+      <div className="text-3xl leading-8 text-[#797979] text-left relative">
+        <div className="caret" style={{ left: 0, top: 0 }} ref={carret}></div>
         {sentence.split("\n").map((line, lineIndex) => {
           const isLastLine = lineIndex === sentence.split("\n").length - 1;
 
           return (
             <div key={`line-${lineIndex}`}>
               {line.split("").map((char, charIndex) => {
-                const key = `char-${charCounter}`
-                const charRef = wordSpanRefs[charCounter]
-                charCounter++
+                const key = `char-${charCounter}`;
+                const charRef = wordSpanRefs[charCounter];
+                charCounter++;
                 if (char === " ") {
-                  return <span key={key} ref={charRef}>&nbsp;</span>
+                  return (
+                    <span key={key} ref={charRef}>
+                      _
+                    </span>
+                  );
                 }
-                return <span key={key} ref={charRef}>{char}</span>
+                return (
+                  <span key={key} ref={charRef}>
+                    {char}
+                  </span>
+                );
               })}
               {!isLastLine && (
-                <span
-                  key={`char-${charCounter}`}
-                  ref={wordSpanRefs[charCounter]}
-                  className="newline"
-                >
+                <span key={`char-${charCounter}`} ref={wordSpanRefs[charCounter]} className="newline">
                   ↵
                 </span>
               )}
               {!isLastLine && charCounter++}
             </div>
-          )
+          );
         })}
       </div>
       <textarea
@@ -114,5 +134,5 @@ export default function Editor() {
         className="bg-[#111111] text-white"
       ></textarea>
     </div>
-  )
+  );
 }
