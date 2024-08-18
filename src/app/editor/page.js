@@ -2,7 +2,6 @@
 
 import { carretBackspace } from "@/components/utils/carretHandler";
 import carretNextLine from "@/components/utils/carretNextLine";
-import carretPreviousLine from "@/components/utils/carretPreviousLine";
 import getCarretLeft from "@/components/utils/getCarretLeft";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
@@ -39,6 +38,12 @@ do
   const handleKeyDown = (e) => {
     const { key, keyCode } = e;
     const currentIndex = current.current;
+    const disableKeyCode = [9, 17, 18, 27, 37, 38, 39, 40]
+
+    if (disableKeyCode.includes(keyCode)) {
+      e.preventDefault();
+      return
+    }
 
     // disable Caps Lock key
     if (keyCode === 20) {
@@ -52,13 +57,14 @@ do
       return;
     }
 
+
     if (key == "Backspace") {
       if (currentIndex > 0) {
         carretBackspace(carret.current, current.current, wordSpanRefs, lastLine.current)
         setTypes((prev) => prev.slice(0, -1));
         current.current -= 1;
         wordSpanRefs[current.current].current.classList.remove("correct", "wrong");
-      }else{
+      } else {
         carret.current.style.left = "0px"
         carret.current.style.top = "0px"
       }
@@ -76,7 +82,7 @@ do
 
       if (isEnter) {
         // Storing End Position
-        lastLine.current.push(carret.current.style.left);
+        // lastLine.current.push(carret.current.style.left);
         carret.current.style.top = carretNextLine(carret, wordSpanRefs[current.current], lastLine);
         carret.current.style.left = "0px";
 
