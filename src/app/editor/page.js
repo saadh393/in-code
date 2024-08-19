@@ -1,6 +1,6 @@
 "use client";
 
-import { carretBackspace } from "@/components/utils/carretHandler";
+import { carretBackspace, carretHandler } from "@/components/utils/carretHandler";
 import carretNextLine from "@/components/utils/carretNextLine";
 import getCarretLeft from "@/components/utils/getCarretLeft";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -15,6 +15,7 @@ do
   const ref = useRef();
   const lastLine = useRef();
   const carret = useRef();
+  const container = useRef()
   const current = useRef(0);
   const [typed, setTypes] = useState([]);
 
@@ -60,7 +61,8 @@ do
 
     if (key == "Backspace") {
       if (currentIndex > 0) {
-        carretBackspace(carret.current, current.current, wordSpanRefs, lastLine.current)
+        carretHandler(container, wordSpanRefs, current, carret, true)
+
         setTypes((prev) => prev.slice(0, -1));
         current.current -= 1;
         wordSpanRefs[current.current].current.classList.remove("correct", "wrong");
@@ -71,21 +73,17 @@ do
 
 
     } else {
+      if (current.current >= wordSpanRefs.length) return
       const isEnter = keyCode === 13 && sentence[currentIndex] === "\n";
-      carret.current.style.left = getCarretLeft(carret, wordSpanRefs[current.current]);
+
+
+      // Will convert into a function
+      carretHandler(container, wordSpanRefs, current, carret)
 
       if (sentence[currentIndex] === key || isEnter) {
         wordSpanRefs[current.current].current.classList.add("correct");
       } else {
         wordSpanRefs[current.current].current.classList.add("wrong");
-      }
-
-      if (isEnter) {
-        // Storing End Position
-        // lastLine.current.push(carret.current.style.left);
-        carret.current.style.top = carretNextLine(carret, wordSpanRefs[current.current], lastLine);
-        carret.current.style.left = "0px";
-
       }
 
       setTypes((prev) => [...prev, key]);
@@ -97,7 +95,7 @@ do
 
   return (
     <div className="text-center text-white h-screen grid place-items-center">
-      <div className="text-3xl leading-8 text-[#797979] text-left relative">
+      <div className="text-3xl leading-8 text-[#797979] text-left relative" ref={container}>
         <div className="caret" style={{ left: 0, top: 0 }} ref={carret}></div>
         {sentence.split("\n").map((line, lineIndex) => {
           const isLastLine = lineIndex === sentence.split("\n").length - 1;

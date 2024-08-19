@@ -36,4 +36,26 @@ function carretBackspace(carretDom, position, wordsList, lastLine) {
     }
 }
 
-module.exports = { carretBackspace }
+
+function carretHandler(container, wordSpanRefs, current, carret, backspace = false) {
+    if (current.current >= wordSpanRefs.length) return
+
+    const isEnterPressed = wordSpanRefs[current?.current].current.innerText == "↵";
+    const pos = backspace ? current?.current - 2 : isEnterPressed ? current?.current + 1 : current?.current;
+
+    const { left: leftBound, top: topBound } = container.current.getClientRects()[0];
+    const { right: rightPos, top: topPos, width: alphSize } = wordSpanRefs[pos]?.current?.getClientRects()[0] || { right: leftBound, top: topBound };
+
+    carret.current.style.left = isEnterPressed ? `${(rightPos - leftBound) - alphSize}px` : `${rightPos - leftBound}px`;
+    carret.current.style.top = `${topPos - topBound}px`;
+
+
+}
+
+
+
+module.exports = { carretBackspace, carretHandler }
+
+// carretHandler(container, wordSpanRefs, current, carret)
+
+// carretHandler(container, wordSpanRefs, current, carret, true)
