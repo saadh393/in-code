@@ -38,17 +38,31 @@ function carretBackspace(carretDom, position, wordsList, lastLine) {
 
 
 function carretHandler(container, wordSpanRefs, current, carret, backspace = false) {
+    // @todo: Write Down Comment Why this logic is Written
     if (current.current >= wordSpanRefs.length) return
 
     const isEnterPressed = wordSpanRefs[current?.current].current.innerText == "↵";
-    const pos = backspace ? current?.current - 2 : isEnterPressed ? current?.current + 1 : current?.current;
+    let pos;
+    if (backspace) {
+        pos = current?.current - 2
+    } else if (isEnterPressed) {
+        pos = current?.current + 1
+    } else {
+        pos = current?.current
+    }
 
+    // Cursor Boundary is the Boundary of the Container
     const { left: leftBound, top: topBound } = container.current.getClientRects()[0];
+
     const { right: rightPos, top: topPos, width: alphSize } = wordSpanRefs[pos]?.current?.getClientRects()[0] || { right: leftBound, top: topBound };
+
+    console.log("text", wordSpanRefs[pos]?.current?.innerText)
+    console.log("current", wordSpanRefs[current?.current]?.current?.innerText)
+
+    console.log("Prev Cursor Pos ", carret.current.style.left)
 
     carret.current.style.left = isEnterPressed ? `${(rightPos - leftBound) - alphSize}px` : `${rightPos - leftBound}px`;
     carret.current.style.top = `${topPos - topBound}px`;
-
 
 }
 

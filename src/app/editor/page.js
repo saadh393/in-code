@@ -6,11 +6,8 @@ import getCarretLeft from "@/components/utils/getCarretLeft";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 export default function Editor() {
-  const sentence = `def
-if
-print
-do
-`;
+  const sentence = `this is a 
+long text`;
 
   const ref = useRef();
   const lastLine = useRef();
@@ -62,8 +59,6 @@ do
     if (key == "Backspace") {
       if (currentIndex > 0) {
         carretHandler(container, wordSpanRefs, current, carret, true)
-
-        setTypes((prev) => prev.slice(0, -1));
         current.current -= 1;
         wordSpanRefs[current.current].current.classList.remove("correct", "wrong");
       } else {
@@ -71,6 +66,8 @@ do
         carret.current.style.top = "0px"
       }
 
+      // Updating Typed Text
+      setTypes((prev) => prev.slice(0, -1));
 
     } else {
       if (current.current >= wordSpanRefs.length) return
@@ -113,6 +110,7 @@ do
                     </span>
                   );
                 }
+
                 return (
                   <span key={key} ref={charRef}>
                     {char}
