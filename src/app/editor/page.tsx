@@ -5,20 +5,21 @@ import carretNextLine from "@/components/utils/carretNextLine";
 import getCarretLeft from "@/components/utils/getCarretLeft";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-export default function Editor() {
-  const sentence = `this is a 
-long text`;
+export default function Editor({ sentence }) {
+  if (!sentence) {
+    return <p>Something Went Wrong</p>;
+  }
 
   const ref = useRef();
   const lastLine = useRef();
   const carret = useRef();
-  const container = useRef()
+  const container = useRef();
   const current = useRef(0);
   const [typed, setTypes] = useState([]);
 
   useEffect(() => {
     ref.current.focus();
-    lastLine.current = []
+    lastLine.current = [];
 
     document.addEventListener("click", () => {
       ref.current.focus();
@@ -36,11 +37,11 @@ long text`;
   const handleKeyDown = (e) => {
     const { key, keyCode } = e;
     const currentIndex = current.current;
-    const disableKeyCode = [9, 17, 18, 27, 37, 38, 39, 40]
+    const disableKeyCode = [9, 17, 18, 27, 37, 38, 39, 40];
 
     if (disableKeyCode.includes(keyCode)) {
       e.preventDefault();
-      return
+      return;
     }
 
     // disable Caps Lock key
@@ -55,27 +56,24 @@ long text`;
       return;
     }
 
-
     if (key == "Backspace") {
       if (currentIndex > 0) {
-        carretHandler(container, wordSpanRefs, current, carret, true)
+        carretHandler(container, wordSpanRefs, current, carret, true);
         current.current -= 1;
         wordSpanRefs[current.current].current.classList.remove("correct", "wrong");
       } else {
-        carret.current.style.left = "0px"
-        carret.current.style.top = "0px"
+        carret.current.style.left = "0px";
+        carret.current.style.top = "0px";
       }
 
       // Updating Typed Text
       setTypes((prev) => prev.slice(0, -1));
-
     } else {
-      if (current.current >= wordSpanRefs.length) return
+      if (current.current >= wordSpanRefs.length) return;
       const isEnter = keyCode === 13 && sentence[currentIndex] === "\n";
 
-
       // Will convert into a function
-      carretHandler(container, wordSpanRefs, current, carret)
+      carretHandler(container, wordSpanRefs, current, carret);
 
       if (sentence[currentIndex] === key || isEnter) {
         wordSpanRefs[current.current].current.classList.add("correct");
