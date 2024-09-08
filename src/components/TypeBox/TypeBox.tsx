@@ -3,10 +3,10 @@
 import { carretHandler } from "@/components/utils/carretHandler";
 
 import React, { RefObject, useEffect, useMemo, useRef, useState } from "react";
+import { TypeBoxDefaultValue, TypeBoxTypes } from "./TypeBox.types";
 
-type WordSpanRef = number | React.RefObject<HTMLSpanElement>;
-
-export default function Editor({ sentence }) {
+export default function TypeBox(props: TypeBoxTypes) {
+  const { sentence, debug } = props;
   if (!sentence) {
     return <p>Something Went Wrong</p>;
   }
@@ -39,6 +39,11 @@ export default function Editor({ sentence }) {
     const { key, keyCode } = e;
     const currentIndex = current.current;
     const disableKeyCode = [9, 17, 18, 27, 37, 38, 39, 40];
+
+    if (currentIndex > sentence.length) {
+      e.preventDefault();
+      return;
+    }
 
     if (disableKeyCode.includes(keyCode)) {
       e.preventDefault();
@@ -128,8 +133,6 @@ export default function Editor({ sentence }) {
       </div>
       <textarea
         ref={inputAreaRef}
-        rows={5}
-        cols={50}
         id="multiLineInput"
         onKeyDown={handleKeyDown}
         className="bg-[#111111] text-white"
@@ -137,3 +140,5 @@ export default function Editor({ sentence }) {
     </div>
   );
 }
+
+TypeBox.defaultProps = TypeBoxDefaultValue;
